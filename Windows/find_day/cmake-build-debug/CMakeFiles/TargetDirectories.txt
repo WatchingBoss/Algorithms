@@ -1,0 +1,3 @@
+F:/Documents/Projects_C/LearningC_Win/Windows/find_day/cmake-build-debug/CMakeFiles/find_day.dir
+F:/Documents/Projects_C/LearningC_Win/Windows/find_day/cmake-build-debug/CMakeFiles/edit_cache.dir
+F:/Documents/Projects_C/LearningC_Win/Windows/find_day/cmake-build-debug/CMakeFiles/rebuild_cache.dir
