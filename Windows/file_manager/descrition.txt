@@ -1,1 +1,0 @@
-Create Artem's file manager with C (which he created with java)
