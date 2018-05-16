@@ -32,6 +32,8 @@ void fact(const int *n)
 	for(int i = resSize - 1; i >= 0; --i)
 		printf("%d", res[i]);
 	printf("\n");
+
+	free(res);
 }
 
 int multi(int x, int *res, int resSize)
