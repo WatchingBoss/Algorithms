@@ -35,7 +35,7 @@ void compare(const int *number)
 	rStirling = stirling(number);
 	rLoop     = loop(number);
 
-	iDiffer = (double)((double)rStirling / (double)rLoop);
+	iDiffer = (static_cast <double> (rStirling) / static_cast <double> (rLoop));
 
 	std::cout << "Result of stirling formula: " << rStirling << "\n"
 			  << "Result of simple loop:      " << rLoop << "\n" << std::endl;
@@ -52,10 +52,10 @@ int stirling(const int *number)
 	int n = *number;
 	int result = 1;
 
-	first_part  = sqrt((double)(2 * PI * n));
-	second_part = pow((double)(n / E), (double)n);
+	first_part  = sqrt(static_cast <double> (2 * PI * n));
+	second_part = pow(static_cast <double> (n / E), static_cast <double> (n));
 
-	result = (int)(first_part * second_part);
+	result = static_cast <int>(first_part * second_part);
 
 	return(result);
 }
