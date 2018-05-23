@@ -42,7 +42,7 @@ void list()
 			first = temp = head;
 
 		fflush(stdin);
-		printf("Do you want to continue? (0 or 1)");
+		printf("Do you want to continue? 0 or 1: ");
 		scanf("%d", &choice);
 	}
 
@@ -50,7 +50,7 @@ void list()
 
 	temp = first;
 
-	printf("Status of the linked list:");
+	printf("Status of the linked list: ");
 	while(temp != 0)
 	{
 		printf("%d => ", temp->number);
