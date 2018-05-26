@@ -1,4 +1,0 @@
-1. factorial
-2. fibonacci
-3. find day
-4. string reverse
