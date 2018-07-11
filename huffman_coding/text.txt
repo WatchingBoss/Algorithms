@@ -1,0 +1,39 @@
+While in the middle of writing “Reading bits in far too many ways,
+part 3”, I realized that I had written a lot of background material
+that had absolutely nothing to do with bit I/O and really was worth
+putting in its own post. This is that post.
+
+The problem I’m concerned with is fairly easy to state: say we have
+some piece of C++ code that we’re trying to understand (and perhaps
+improve) the performance of. A good first step is to profile it, which
+will give us some hints which parts are slow, but not necessarily
+why. On a fundamental level, any kind of profiling (or other
+measurement) is descriptive, not predictive: it can tell you how an
+existing system is behaving, but if you’re designing something that’s
+more than a few afternoons worth of work, you probably don’t have the
+time or resources to implement 5 or 6 completely different design
+alternatives, pick whichever one happens to work best, and throw the
+rest away. You should be able to make informed decisions up front from
+an algorithm sketch without having to actually write a fleshed-out
+implementation.
+
+One thing I want to emphasize particularly here is that experiments
+coupled with before/after measurements are no adequate substitute for
+a useful performance model. These kinds of measurements can tell you
+how much you’ve improved, but not if you are where you should be: if I
+tell you that by tweaking some config files, I managed to double the
+number of requests served per second by the web server, that sounds
+great. It sounds less good if I give you the additional piece of
+information that with this fix deployed, we’re now at a whopping 1.5
+requests per second; having an absolute scale of reference matters!
+
+This goes especially for microbenchmarks. With microbenchmarks, like a
+trial lawyer during cross-examination, you should never ask a question
+you don’t know the answer to (or at least have a pretty good idea of
+what it is). Real-world systems are generally too complex and
+intertwined to understand from surface measurements alone. If you have
+no idea how a system works at all, you don’t know what the right
+questions are, nor how to ask them, and any answers you get will be
+opaque at best, if not outright garbage. Microbenchmarks are a useful
+tool to confirm that an existing model is a good approximation to
+reality, but not very helpful in building these models to begin with.

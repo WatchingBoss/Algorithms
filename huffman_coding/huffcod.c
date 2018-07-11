@@ -5,15 +5,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define PRINT_START
-//#define PRINT_TEMP_NODES
+#include "frequency.c"
+
+#define PRINT_START 0
+#define PRINT_TEMP_NODES 0
 
 typedef unsigned char uchar_t;
 
 uchar_t number_of_nodes = 1;
 
 void system_error(char *e);
-void * xmalloc(size_t size);
 
 typedef struct Node
 {
@@ -80,7 +81,7 @@ Priority_Queue * fill_priority_queue(char symbol[], size_t freq[], size_t amount
 
 	sequence_priority_queue(pQueue);
 
-#ifdef PRINT_START
+#if PRINT_START
 	for(int i = 0; i < pQueue->size; ++i)
 		printf("%c - %ld\n", pQueue->array[i]->data, pQueue->array[i]->freq);
 	printf("\n");
@@ -111,7 +112,7 @@ void add_branches(Priority_Queue *pQueue)
 
 		sequence_priority_queue(pQueue);
 
-#ifdef PRINT_TEMP_NODES
+#if PRINT_TEMP_NODES
 		for(int i = 0; i < pQueue->size; ++i)
 			printf("%c - %ld\n", pQueue->array[i]->data, pQueue->array[i]->freq);
 		printf("\n");
@@ -169,12 +170,14 @@ void huffman_coding(char symbol[], size_t freq[], size_t amount)
 
 int main()
 {
-	char symbol[] = {'a', 'b', 'c', 'd', 'e', 't', 'w', 'u', 'q'};
-	size_t freq[] = {31, 9, 23, 15, 7, 65, 14, 43, 18};
+	Sym_Freq *sfa = count_freq("text.txt");
 
-	size_t amount = sizeof symbol / sizeof *(symbol + 1);
+#if CHECK
+	for(int i = 0; i < sfa->freq->amount; ++i)
+		printf("%2c - %ld\n", sfa->symbols[i], sfa->freq->freq[i]);
+#endif
 
-	huffman_coding(symbol, freq, amount);
+	huffman_coding(sfa->symbols, sfa->freq->freq, sfa->freq->amount);
 
 	return 0;
 }
@@ -188,5 +191,7 @@ void system_error(char *e)
 void * xmalloc(size_t size)
 {
 	void *ptr = malloc(size);
-	if(ptr) return ptr; else  system_error("malloc ptr error");
+	if(!ptr)
+		system_error("malloc ptr error");
+	return ptr;
 }
