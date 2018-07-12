@@ -1,83 +1,65 @@
 /*
- * Sample of insertion sort algorithm
+ * Implementation of insertion sort algorithm
+ * 2 seconds to sort 50,000 elements
+ * 8 seconds to sort 100,000 elements
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
-void print_arr(size_t *arr, size_t size)
+#define MIN 1
+#define MAX 500
+#define NUM 50000
+
+void print_arr(size_t arr[], size_t size)
 {
 	for(int i = 0; i < size; ++i)
+	{
 		printf("%ld ", arr[i]);
-	printf("\n\n");
+		if(!(i % 25) && i)
+			printf("\n");
+	}
+	printf("\n");
 }
 
-void swap(size_t *seq, size_t *prev)
+void i_sort(size_t arr[], size_t size)
 {
-	size_t temp = *prev;
-	*prev = *seq;
-	*seq = temp;
-}
-
-void insertion(size_t arr[], size_t size)
-{
+	int key = 0, j = 0;
 	for(int i = 1; i < size; ++i)
-		for(int j = i; j > 0 && arr[j - 1] > arr[j]; --j)
-			swap(&(arr[j]), &(arr[j - 1]));
-}
+	{
+		key = arr[i];
+		j = i - 1;
 
-size_t * add_number(size_t *numbers, size_t *size, size_t next_number)
-{
-	size_t *arr = NULL;
-	arr = realloc(arr, sizeof arr * (*size + 1));
-
-	if(*size)
-		for(int i = 0; i < (*size); ++i)
-			arr[i] = numbers[i];
-
-	arr[*size] = next_number;
-	*size += 1;
-
-	if(*size > 1)
-		insertion(arr, *size);
-
-	return arr;
+		while(j >= 0 && arr[j] > key)
+		{
+			arr[j + 1] = arr[j];
+			--j;
+		}
+		
+		arr[j + 1] = key;
+	}
 }
 
 int main()
 {
-
-	size_t *numbers = NULL;
-	size_t adding_number = 0,
-		   size = 0;
-
-#define SIZE 5000
-#define MIN 1
-#define MAX 500
-
-	size_t array_numbers[SIZE];
 	srand(time(NULL));
-	for(int i = 0; i < SIZE; ++i)
-		array_numbers[i] = rand() % (MAX + 1 - MIN) + MIN;
-//	printf("Before sorting\n");
-//	print_arr(array_numbers, SIZE);
+#ifndef NUM
+	int NUM = 0;
+	printf("Enter number of elements: ");
+	scanf("%d", &NUM);
+#endif
+
+	size_t arr[NUM];
+	for(int i = 0; i < NUM; ++i)
+		arr[i] = rand() % (MAX + 1 - MIN) + MIN;
 
 	time_t begin = time(NULL);
-
-	for(int i = 0; i < SIZE; ++i)
-		numbers = add_number(numbers, &size, array_numbers[i]);
-
+	i_sort(arr, NUM);
 	time_t end = time(NULL);
 
-	printf("After sorting\n");
-	print_arr(numbers, size);
-
-	printf("To sorting %d numbers was taken %ld second\n", SIZE, end - begin);
+	print_arr(arr, NUM);
+	printf("%ld second to sort %d elements\n", end - begin, NUM);
 
 	return 0;
 }
-
-/*
- * Sort 50,000 numbers for 13 second. Is it fast?
- */
