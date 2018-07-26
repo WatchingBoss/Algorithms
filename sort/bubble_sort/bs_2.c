@@ -14,7 +14,7 @@
 
 void print_arr(size_t arr[], size_t size)
 {
-	for(int i = 0; i < size; ++i)
+	for(size_t i = 0; i < size; ++i)
 	{
 		printf("%ld ", arr[i]);
 		if(!(i % 30) && i)
@@ -32,8 +32,8 @@ void swap(size_t *src, size_t *dest)
 
 void b_sort(size_t arr[], size_t size)
 {
-	for(int i = 0; i < size; ++i)
-		for(int j = 0; j <= size - 1; ++j)
+	for(size_t i = 0; i < size; ++i)
+		for(size_t j = 0; j <= size - 1; ++j)
 			if(arr[j] > arr[j + 1])
 				swap(&arr[j + 1], &arr[j]);
 }

@@ -73,7 +73,7 @@ Priority_Queue * fill_priority_queue(char symbol[], size_t freq[], size_t amount
 {
 	Priority_Queue *pQueue = create_pQueue(amount);
 
-	for(int i = 0; i < amount; ++i)
+	for(size_t i = 0; i < amount; ++i)
 	{
 		pQueue->size++;
 		pQueue->array[i] = create_new_node(symbol[i], freq[i]);
@@ -103,7 +103,7 @@ void add_branches(Priority_Queue *pQueue)
 		temp->left = left;
 		temp->right = right;
 
-		for(int i = 0; i < pQueue->size - 1; ++i)
+		for(size_t i = 0; i < pQueue->size - 1; ++i)
 			pQueue->array[i] = pQueue->array[i+1];
 
 		pQueue->array[0] = temp;

@@ -14,7 +14,7 @@
 
 void print_arr(size_t arr[], size_t size)
 {
-	for(int i = 0; i < size; ++i)
+	for(size_t i = 0; i < size; ++i)
 	{
 		printf("%ld ", arr[i]);
 		if(!(i % 25) && i)
@@ -26,7 +26,7 @@ void print_arr(size_t arr[], size_t size)
 void i_sort(size_t arr[], size_t size)
 {
 	int key = 0, j = 0;
-	for(int i = 1; i < size; ++i)
+	for(size_t i = 1; i < size; ++i)
 	{
 		key = arr[i];
 		j = i - 1;
