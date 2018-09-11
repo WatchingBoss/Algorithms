@@ -16,13 +16,15 @@ typedef enum{false, true} bool;
 
 static size_t count = 0;
 
-void sys_er(const char *e)
+static void
+sys_er(const char *e)
 {
 	perror(e);
 	exit(EXIT_FAILURE);
 }
 
-void * xmalloc(int size)
+static void *
+xmalloc(int size)
 {
 	void *ptr = malloc(size);
 	if(!ptr)
@@ -30,7 +32,8 @@ void * xmalloc(int size)
 	return ptr;
 }
 
-void * xrealloc(void *ptr, int size)
+static void *
+xrealloc(void *ptr, int size)
 {
 	void *new_ptr = realloc(ptr, size);
 	if(!new_ptr)
@@ -38,23 +41,25 @@ void * xrealloc(void *ptr, int size)
 	return new_ptr;
 }
 
-void freeMem(char **a, char **b, char **c, char **d)
+static void
+freeMem(char ***p)
 {
 	for(size_t i = 0; i < count; ++i)
-	{
-		free(a[i]);
-		free(b[i]);
-		free(c[i]);
-		free(d[i]);
-
-	}
-	free(a);
-	free(b);
-	free(c);
-	free(d);
+		free((*p)[i]);
+	free(*p);
 }
 
-void getFiles(char ***files)
+static void
+freeAll(char ***f, char ***b,char ***s, char ***i)
+{
+	freeMem(f);
+	freeMem(b);
+	freeMem(s);
+	freeMem(i);
+}
+
+static void
+getFiles(char ***files)
 {
 	DIR *dir;
 	struct dirent *dp;
@@ -76,7 +81,8 @@ void getFiles(char ***files)
 	*files = fileNames;
 }
 
-int compStr(const char *str1, const char *str2)
+static int
+compStr(const char *str1, const char *str2)
 {
 	size_t len1 = strlen(str1) + 1, len2 = strlen(str2) + 1;
 	char news1[len1], news2[len2];
@@ -96,19 +102,25 @@ int compStr(const char *str1, const char *str2)
 	return 0;
 }
 
-void b_sort(char **files)
+static void
+swap(char **prev, char **next)
+{
+	char *temp = *prev;
+	*prev = *next;
+	*next = temp;
+}
+
+static void
+Bubble_sort(char **files)
 {
 	for(size_t i = 0; i < count; ++i)
 		for(size_t j = 0; j < count; ++j)
 			if(compStr(files[j], files[j + 1]) > 0)
-			{
-				char *temp = files[j];
-				files[j] = files[j + 1];
-				files[j + 1] = temp;
-			}
+				swap(&files[j], &files[j + 1]);
 }
 
-void s_sort(char **files)
+static void
+Selection_sort(char **files)
 {
 	for(size_t i = 0; i < count - 1; ++i)
 	{
@@ -118,14 +130,12 @@ void s_sort(char **files)
 			if(compStr(files[min], files[j]) > 0)
 				min = j;
 		}
-
-		char *temp = files[min];
-		files[min] = files[i];
-		files[i] = temp;
+		swap(&files[min], &files[i]);
 	}
 }
 
-void i_sort(char **files)
+static void
+Insertion_sort(char **files)
 {
 	for(size_t i = 1; i <= count; ++i)
 	{
@@ -141,86 +151,70 @@ void i_sort(char **files)
 	}
 }
 
-void copy_names(char **files, char ***bub, char ***ins, char ***sel)
+static void
+copy(char **src, char ***dest)
 {
-	*bub = xmalloc(count * sizeof *bub);
-	*ins = xmalloc(count * sizeof *ins);
-	*sel = xmalloc(count * sizeof *sel);
-
+	*dest = xmalloc(count * sizeof *dest);
 	for(size_t i = 0; i <= count; ++i)
 	{
-		char *temp = files[i];
+		const char *temp = src[i];
 		const size_t len = strlen(temp) + 1;
-
-		(*bub)[i] = xmalloc(len * sizeof **bub);
-		memcpy((*bub)[i], temp, len);
-
-		(*ins)[i] = xmalloc(len * sizeof **ins);
-		memcpy((*ins)[i], temp, len);
-
-		(*sel)[i] = xmalloc(len * sizeof **sel);
-		memcpy((*sel)[i], temp, len);
+		(*dest)[i] = xmalloc(len * sizeof **dest);
+		memcpy((*dest)[i], temp, len);
 	}
 }
 
-void run_sort(char ** bubble, char **selection, char **insertion, bool check)
+static void
+copy_names(char **files, char ***bub, char ***ins, char ***sel)
 {
-	float bub = 0.f, sel = 0.f, ins = 0.f;
+	copy(files, bub);
+	copy(files, sel);
+	copy(files, ins);
+}
+
+static float
+sorting(char **files, void (*sort_f)(char **), bool check, const char *type)
+{
+	struct timeval before, after, dif;
+
+	gettimeofday(&before, NULL);
+	(*sort_f)(files);
+	gettimeofday(&after, NULL);
+
+	timersub(&after, &before, &dif);
+	float sec = (float)dif.tv_usec / 1000000.f;
+
+	printf("%.6f seconds for %s\n", sec, type);
+
+	if(check)
 	{
-		struct timeval before, after, dif;
-		gettimeofday(&before, NULL);
-		b_sort(bubble);
-		gettimeofday(&after, NULL);
-		timersub(&after, &before, &dif);
-		float sec = (float)dif.tv_usec / 1000000.f;
-		printf("%.6f seconds for bubble sort\n", sec);
-		bub = sec;
+		printf("========== %s ==========\n", type);
+		for(size_t i = 0; i <= count; ++i)
+			printf("%s\n", files[i]);
 	}
-	{
-		struct timeval before, after, dif;
-		gettimeofday(&before, NULL);
-		s_sort(selection);
-		gettimeofday(&after, NULL);
-		timersub(&after, &before, &dif);
-		float sec = (float)dif.tv_usec / 1000000.f;
-		printf("%.6f seconds for selection sort\n", sec);
-		sel = sec;
-	}
-	{
-		struct timeval before, after, dif;
-		gettimeofday(&before, NULL);
-		i_sort(insertion);
-		gettimeofday(&after, NULL);
-		timersub(&after, &before, &dif);
-		float sec = (float)dif.tv_usec / 1000000.f;
-		printf("%.6f seconds for insertion sort\n", sec);
-		ins = sec;
-	}
+		
+	return sec;
+}
+
+static void
+run_sort(char **bub, char **sel, char **ins, bool check)
+{
+	float
+		bub_t = sorting(bub, Bubble_sort, check, "Bubble Sort"),
+		sel_t = sorting(sel, Selection_sort, check, "Selection Sort"),
+		ins_t = sorting(ins, Insertion_sort, check, "Insertion Sort");
+
 	printf("Selection sort faster than bubble sort in    %.1f times\n"
 		   "Insertion sort faster than bubble sort in    %.1f times\n"
 		   "Insertion sort faster than selection sort in %.1f times\n",
-		   bub / sel, bub / ins, sel / ins);
-
-	if(!check) return;
-
-	puts("=============== Bubble sort ===============");
-	for(size_t i = 0; i <= count; ++i)
-		printf("%s\n", bubble[i]);
-
-	puts("=============== Insertion sort ===============");
-	for(size_t i = 0; i <= count; ++i)
-		printf("%s\n", insertion[i]);
-
-	puts("=============== Selection sort ===============");
-	for(size_t i = 0; i <= count; ++i)
-		printf("%s\n", selection[i]);
+		   bub_t / sel_t, bub_t / ins_t, sel_t / ins_t);
 }
 
 int main()
 {
 	char
 		**files = NULL,
-		**bubble = NULL, **insertion = NULL, **selection = NULL;
+		**bubble = NULL, **selection = NULL, **insertion = NULL;
 
 	getFiles(&files);
 
@@ -228,20 +222,7 @@ int main()
 
 	run_sort(bubble, insertion, selection, false);
 
-//	freeMem(files, bubble, insertion, selection);
-
-
-	for(size_t i = 0; i < count; ++i)
-	{
-		free(files[i]);
-		free(bubble[i]);
-		free(insertion[i]);
-		free(selection[i]);
-	}
-	free(files);
-//	free(bubble);
-//	free(insertion);
-//	free(selection);
+	freeAll(&files, &bubble, &insertion, &selection);
 
 	return 0;
 }
