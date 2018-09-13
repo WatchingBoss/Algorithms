@@ -113,8 +113,8 @@ swap(char **prev, char **next)
 static void
 Bubble_sort(char **files)
 {
-	for(size_t i = 0; i < count; ++i)
-		for(size_t j = 0; j < count; ++j)
+	for(size_t i = 0; i < count - 1; ++i)
+		for(size_t j = 0; j < count - i; ++j)
 			if(compStr(files[j], files[j + 1]) > 0)
 				swap(&files[j], &files[j + 1]);
 }

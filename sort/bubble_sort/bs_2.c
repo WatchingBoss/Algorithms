@@ -32,8 +32,8 @@ void swap(size_t *src, size_t *dest)
 
 void b_sort(size_t arr[], size_t size)
 {
-	for(size_t i = 0; i < size; ++i)
-		for(size_t j = 0; j < size; ++j)
+	for(size_t i = 0; i < size - 1; ++i)
+		for(size_t j = 0; j < size - i; ++j)
 			if(arr[j] > arr[j + 1])
 				swap(&arr[j + 1], &arr[j]);
 }
