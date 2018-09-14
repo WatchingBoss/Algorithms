@@ -41,13 +41,13 @@ void i_sort_2(size_t arr[], size_t size)
 /* Faster */
 void i_sort(size_t arr[], size_t size)
 {
-	int key = 0, j = 0;
+	size_t key = 0, j = 0;
 	for(size_t i = 1; i < size; ++i)
 	{
 		key = arr[i];
 		j = i - 1;
 
-		while(j >= 0 && arr[j] > (size_t)key)
+		while((int)j >= 0 && arr[j] > key)
 		{
 			arr[j + 1] = arr[j];
 			--j;
