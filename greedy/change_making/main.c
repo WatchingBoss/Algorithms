@@ -1,11 +1,39 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void change_making(size_t coins[], size_t size, size_t value)
+void * xrealloc(void *ptr, int bytes)
 {
-	printf("To get %ld we need:\n", value);
+	ptr = realloc(ptr, bytes);
+	if(ptr == NULL)
+	{
+		perror("realloc error");
+		exit(EXIT_FAILURE);
+	}
+	return ptr;
+}
 
-	for(size_t i = 0; i < size; ++i)
+typedef struct coin_value_
+{
+	size_t coin, count, times;
+} coin_value;
+
+void add_coin(coin_value **c_v, size_t count, size_t coin, size_t *j)
+{
+	size_t temp_j = *j;
+	coin_value *temp = NULL;
+	temp = xrealloc(*c_v, sizeof *temp * (temp_j + 1));
+	temp[temp_j].coin = coin;
+	temp[temp_j].count = count;
+	temp[0].times = ++temp_j;
+	*c_v = temp;
+	++(*j);
+}
+
+coin_value * change_making(size_t coins[], size_t size, size_t value)
+{
+	coin_value *c_v = NULL;
+
+	for(size_t i = 0, j = 0; i < size; ++i)
 	{
 		size_t count = 0;
 		while(value >= coins[i])
@@ -14,9 +42,11 @@ void change_making(size_t coins[], size_t size, size_t value)
 			value -= coins[i];
 		}
 
-		if(count > 0)
-			printf("%2ld coins of %ld denomination\n", count, coins[i]);
+		if(count)
+			add_coin(&c_v, count, coins[i], &j);
 	}
+
+	return c_v;
 }
 
 int main()
@@ -28,7 +58,11 @@ int main()
 	printf("What value you want to get: ");
 	scanf("%ld", &value);
 
-	change_making(coins, size, value);
+	coin_value *c_v = change_making(coins, size, value);
+
+	printf("To get %ld we need:\n", value);
+	for(size_t i = 0; i < c_v[0].times; ++i)
+		printf("\t%2ld coins of %ld denomination\n", c_v[i].count, c_v[i].coin);
 
 	return 0;
 }
