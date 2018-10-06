@@ -12,7 +12,7 @@
 
 #define DIR_PATH "/usr/include"
 
-typedef enum{false, true} bool;
+typedef enum {false, true} bool;
 
 static size_t count = 0;
 
@@ -71,8 +71,8 @@ getFiles(char ***files)
 	while( (dp = readdir(dir)) )
 	{
 		const size_t len = strlen(dp->d_name) + 1;
-		fileNames = xrealloc(fileNames, (count + 1) * sizeof fileNames);
-		fileNames[count] = xmalloc(len * sizeof *fileNames);
+		fileNames = (char *)xrealloc(fileNames, (count + 1) * sizeof fileNames);
+		fileNames[count] = (char *)xmalloc(len * sizeof *fileNames);
 		memcpy(fileNames[count++], dp->d_name, len);
 	}
 	--count;
@@ -154,7 +154,7 @@ Insertion_sort(char **files)
 static void
 copy(char **src, char ***dest)
 {
-	*dest = xmalloc(count * sizeof *dest);
+	*dest = (char *)xmalloc(count * sizeof *dest);
 	for(size_t i = 0; i <= count; ++i)
 	{
 		const char *temp = src[i];
