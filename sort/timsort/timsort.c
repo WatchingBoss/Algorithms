@@ -9,16 +9,21 @@ static void sys_er(const char *er) {
 }
 
 static void *xmalloc(int bytes) {
+	/* DEBUG */
+	printf("\nXMALLOC:\n"
+	       "Size: %d\n",
+	       bytes);
+
 	void *ptr = malloc(bytes);
 	if (!ptr) sys_er("xmalloc: malloc error");
 	return ptr;
 }
 
 static void *xrealloc(void *ptr, int bytes) {
-
 	/* DEBUG */
 	printf("\nXREALLOC:\n"
-		   "Address: %p   Next size: %d\n", ptr, bytes);
+	       "Address: %p   Next size: %d\n",
+	       ptr, bytes);
 
 	void *new_ptr = realloc(ptr, bytes);
 	if (!new_ptr) sys_er("xrealloc: realloc error");
@@ -46,68 +51,59 @@ static void printing(int *arr, int size) {
 }
 
 typedef struct _one_dim_arr {
-	int  size, count;
-	int *arr;
+	int size, count;
+	int arr[];
 } one_dim_arr;
 
 typedef struct _two_dim_arr {
-	int          size, count;
-	one_dim_arr *arr;
+	int         size, count;
+	one_dim_arr arr[];
 } two_dim_arr;
 
-static void run_free(one_dim_arr *run) {
-	free(run->arr);
-	run->size  = 0;
-	run->count = 0;
-}
+static inline void run_free(one_dim_arr **run) { free(*run); }
 
-static void run_append(one_dim_arr *run, int value) {
-	/* DEBUG */
-	printf("appending: run size BEFORE = %d\n", run->size);
+static void run_append(one_dim_arr **run, int value) {
+	one_dim_arr *new_run = NULL;
 
-	run->size += sizeof value;
-
-	if (!run->count)
-		run->arr = (int *)xmalloc(run->size);
-	else
-		run->arr = (int *)xrealloc(run->arr, run->size);
-
-	/* DEBUG */
-	printf("appending: run size AFTER = %d\n", run->size);
-
-	run->arr[run->count] = value;
-	run->count += 1;
-}
-
-static void runs_append(two_dim_arr *runs, one_dim_arr run) {
-	/* DEBUG */
-	if (!run.count) {
-		printf("runs.count = %d\n", runs->count);
-		sys_er("");
+	if (!(*run)) {
+		new_run = (one_dim_arr *)xmalloc(sizeof(one_dim_arr) + sizeof value);
+		new_run->count = 1;
+	} else {
+		int temp_count = (*run)->count + 1;
+		new_run        = (one_dim_arr *)xrealloc(
+            *run, sizeof(one_dim_arr) + sizeof value + (*run)->size);
+		new_run->count = temp_count;
 	}
 
-	int run_size = sizeof(int) * 2 + run.size;
-	/* DEBUG */
-	printf("\nSize of appending run: %d\n", run_size);
+	memmove(&new_run->arr[new_run->count - 1], &value, sizeof value);
+	new_run->size = sizeof new_run->arr[0] * new_run->count;
 
-	/* DEBUG */
-	printf("BEFORE runs size = %d\n", runs->size);
-
-	runs->size += run_size;
-	if(!runs->count)
-		runs->arr = (one_dim_arr *)malloc(runs->size);
-	else
-		runs->arr = (one_dim_arr *)xrealloc(runs->arr, runs->size);
-
-	/* DEBUG */
-	printf("AFTER runs size = %d\n", runs->size);
-
-	runs->arr[runs->count] = run;
-	runs->count += 1;
+	*run = new_run;
 }
 
-static one_dim_arr temp_run(int value) {
-	one_dim_arr temp = { 0, 0, NULL };
+static void runs_append(two_dim_arr **runs, one_dim_arr *run) {
+	two_dim_arr *new_runs     = NULL;
+	size_t       structs_size = sizeof(two_dim_arr) + sizeof(one_dim_arr);
+
+	if (!(*runs)) {
+		new_runs        = (two_dim_arr *)xmalloc(structs_size + run->size);
+		new_runs->count = 1;
+	} else {
+		int temp_count = (*runs)->count + 1;
+		new_runs = (two_dim_arr *)xrealloc(*runs, structs_size + (*runs)->size +
+		                                              run->size);
+		new_runs->count = temp_count;
+	}
+
+	memmove(&new_runs->arr[new_runs->count - 1], run,
+	        sizeof(one_dim_arr) + run->size);
+	new_runs->size += run->size;
+
+	*runs = new_runs;
+}
+
+static one_dim_arr *temp_run(int value) {
+	one_dim_arr *temp = NULL;
 	run_append(&temp, value);
 	return temp;
 }
@@ -172,15 +168,34 @@ static void merge_sort(int *arr, int arr_i, int arr_size, int *run, int run_i,
 	}
 }
 
+/* DEBUG */
+static void print_data(one_dim_arr *run, two_dim_arr *runs) {
+	if (run) {
+		printf("\nElements of run: ");
+		for (int i = 0; i < run->count; ++i) printf("%d ", run->arr[i]);
+		puts("");
+	}
+	if (runs) {
+		for (int i = 0; i < runs->count; ++i) {
+			printf("\nElements of %d array: ", i);
+			for (int j = 0; j < runs->arr[i].arr[j]; ++j)
+				printf("%d ", runs->arr[i].arr[j]);
+			puts("");
+		}
+	}
+}
+
 static void timsort(int *arr, int size) {
-	one_dim_arr new_run = { 0, 0, NULL };
-	two_dim_arr runs = { 0, 0, NULL }, sorted_runs = { 0, 0, NULL };
+	one_dim_arr *new_run = NULL;
+	two_dim_arr *runs = NULL, *sorted_runs = NULL;
 
 	run_append(&new_run, arr[0]);
 
 	for (int i = 1; i != size; ++i) {
 		/* DEBUG */
 		printf("\nIteration #%d\n", i);
+		print_data(new_run, runs);
+
 		if (i == size - 1) {
 			run_append(&new_run, arr[i]);
 			runs_append(&runs, new_run);
@@ -188,54 +203,36 @@ static void timsort(int *arr, int size) {
 			break;
 		}
 		if (arr[i] < arr[i - 1]) {
-			if (!new_run.size) {
-				/* DEBUG */
-				printf("Use temp\n");
-				one_dim_arr temp = temp_run(arr[i]);
-				/* DEBUG */
-				printf("Append run to runs. runs count = %d, run size = %d\n",
-				       runs.count, new_run.size);
+			if (!new_run->size) {
+				one_dim_arr *temp = temp_run(arr[i]);
 				runs_append(&runs, temp);
 				run_append(&new_run, arr[i]);
 				run_free(&temp);
 			} else {
-				/* DEBUG */
-				printf("Append run to runs. runs count = %d, run size = %d\n",
-				       runs.count, new_run.size);
 				runs_append(&runs, new_run);
 				run_free(&new_run);
 			}
 		} else {
-			/* DEBUG */
-			printf("Append new_run. run count = %d, run size = %d\n",
-			       new_run.count, new_run.size);
 			run_append(&new_run, arr[i]);
 		}
 	}
 
-	/* DEBUG */
-	printf("runs.count = %d\n", runs.count);
+	for (int run = 0; run != runs->count; ++run) {
+		one_dim_arr *sorted_run = NULL;
 
-	for (int run = 0; run != runs.count; ++run) {
-		one_dim_arr sorted_run = { 0, 0, NULL };
+		for (int item = 0; item != runs->arr[run].count; ++item)
+			run_append(&sorted_run, runs->arr[run].arr[item]);
 
-		/* DEBUG */
-		printf("run #%d\n", run);
-		printf("run.count = %d\n", runs.arr[run].count);
-
-		for (int item = 0; item != runs.arr[run].count; ++item)
-			run_append(&sorted_run, runs.arr[run].arr[item]);
-
-		insertion_sort(&sorted_run);
+		insertion_sort(sorted_run);
 
 		runs_append(&sorted_runs, sorted_run);
 
 		run_free(&sorted_run);
 	}
 
-	for (int run = 0; run != sorted_runs.count; ++run) {
-		merge_sort(arr, 0, size, sorted_runs.arr[run].arr, 0,
-		           sorted_runs.arr[run].count);
+	for (int run = 0; run != sorted_runs->count; ++run) {
+		merge_sort(arr, 0, size, sorted_runs->arr[run].arr, 0,
+		           sorted_runs->arr[run].count);
 	}
 }
 
