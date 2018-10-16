@@ -38,23 +38,20 @@ static void swap(int *prev, int *seq){
 }
 
 /* heapsort */
-static void heapify(int *arr, int size, int i){
-	int largest = i, left = 2 * i + 1, right = 2 * i + 2;
+static void heapify(int *arr, int size, int index){
+	int largest = index, left = index * 2 + 1, right = index * 2 + 2;
 
-	if(left < size && arr[left] > arr[largest])
-		largest = left;
-	if(right < size && arr[right] > arr[largest])
-		largest = right;
-	if(largest != i){
-		swap(&arr[i], &arr[largest]);
-		heapify(arr, size, largest);
-	}
+	if(left < size && arr[left] > arr[largest]) largest = left;
+	if(right < size && arr[right] > arr[largest]) largest = right;
+
+	if(largest == index) return;
+	swap(&arr[largest], &arr[index]);
+	heapify(arr, size, largest);
 }
 
 static void heapsort(int *arr, int size){
-	for (int i = size / 2 - 1; i >= 0; --i)
-		heapify(arr, size, i);
-	for(int i = size - 1; i >= 0; --i){
+	for(int i = size / 2 - 1; i != -1; --i) heapify(arr, size, i);
+	for(int i = size - 1; i != -1; --i){
 		swap(&arr[0], &arr[i]);
 		heapify(arr, i, 0);
 	}
