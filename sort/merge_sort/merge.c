@@ -34,7 +34,7 @@ static int *fillArr(int size) {
 /* Merge sorting */
 
 static void merging(int *arr, int size, int low, int mid, int high) {
-	int *temp = (int *)xmalloc(size * sizeof(int *));
+	int *temp = (int *)xmalloc(size * sizeof *arr);
 	int  l1 = low, l2 = mid + 1, i = low;
 
 	for (; l1 <= mid && l2 <= high; ++i) {
