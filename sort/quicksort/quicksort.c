@@ -37,11 +37,12 @@ static void swap(int *prev, int *seq) {
 	*seq     = temp;
 }
 
-static int partition(int *arr, int low, int high, int pivot) {
+static int partition(int *arr, int low, int high) {
+	int pivot = arr[high];
 	int left = low - 1, right = high;
 	while (1) {
 		while (arr[++left] < pivot) {}
-		while (right > 0 && arr[--right] > pivot) {}
+		while (right && arr[--right] > pivot) {}
 		if (left >= right) break;
 		swap(&arr[left], &arr[right]);
 	}
@@ -51,7 +52,7 @@ static int partition(int *arr, int low, int high, int pivot) {
 
 static void quicksort(int *arr, int low, int high) {
 	if (low >= high) return;
-	int point = partition(arr, low, high, arr[high]);
+	int point = partition(arr, low, high);
 	quicksort(arr, low, point - 1);
 	quicksort(arr, point + 1, high);
 }
