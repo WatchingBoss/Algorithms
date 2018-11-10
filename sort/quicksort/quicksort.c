@@ -80,7 +80,7 @@ static void test(int *arr, int size) {
 }
 
 int main() {
-	int  size = 1000000;
+	int  size = 50000000;
 	int *arr  = fillArr(size);
 	test(arr, size);
 
