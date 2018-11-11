@@ -1,13 +1,12 @@
-void swap( int *prev, int *seq ) {
-	int temp = *prev;
-	*prev    = *seq;
-	*seq     = temp;
-}
+#define swap( a, b ) \
+	int temp = a;    \
+	a        = b;    \
+	b        = temp;
 
 void bubble_sort( int *arr, int count ) {
 	for ( int i = 0; i < count - 1; ++i )
 		for ( int j = 0; j < count - 1; ++j )
-			if ( arr[j] > arr[j + 1] ) swap( &arr[j], &arr[j + 1] );
+			if ( arr[j] > arr[j + 1] ) { swap( arr[j], arr[j + 1] ); }
 }
 
 void selection_sort( int *arr, int count ) {
@@ -15,7 +14,7 @@ void selection_sort( int *arr, int count ) {
 		int min = i;
 		for ( int j = i + 1; j < count; ++j )
 			if ( arr[j] < arr[min] ) min = j;
-		swap( &arr[min], &arr[i] );
+		swap( arr[min], arr[i] );
 	}
 }
 
@@ -30,21 +29,21 @@ void insertion_sort( int *arr, int count ) {
 	}
 }
 
-static int q_partition( int *arr, int low, int high) {
+static int q_partition( int *arr, int low, int high ) {
 	int pivot = arr[high], left = low - 1, right = high;
 	while ( 1 ) {
 		while ( arr[++left] < pivot ) {}
 		while ( right && arr[--right] > pivot ) {}
 		if ( left >= right ) break;
-		swap( &arr[left], &arr[right] );
+		swap( arr[left], arr[right] );
 	}
-	swap( &arr[left], &arr[high] );
+	swap( arr[left], arr[high] );
 	return left;
 }
 
 static void q_sort( int *arr, int low, int high ) {
 	if ( low >= high ) return;
-	int point = q_partition( arr, low, high);
+	int point = q_partition( arr, low, high );
 	q_sort( arr, low, point - 1 );
 	q_sort( arr, point + 1, high );
 }
@@ -58,14 +57,14 @@ static void h_heapify( int *arr, int count, int index ) {
 	if ( right < count && arr[right] > arr[largest] ) largest = right;
 
 	if ( largest == index ) return;
-	swap( &arr[largest], &arr[index] );
+	swap( arr[largest], arr[index] );
 	h_heapify( arr, count, largest );
 }
 
 void heapsort( int *arr, int count ) {
 	for ( int i = count / 2 - 1; i >= 0; --i ) h_heapify( arr, count, i );
 	for ( int i = count - 1; i >= 0; --i ) {
-		swap( &arr[0], &arr[i] );
+		swap( arr[0], arr[i] );
 		h_heapify( arr, i, 0 );
 	}
 }
@@ -96,3 +95,31 @@ static void m_merge( int *arr, int count, int low, int high ) {
 }
 
 void merge_sort( int *arr, int count ) { m_merge( arr, count, 0, count - 1 ); }
+
+static void insert_for_quick( int *left, int *right ) {
+	int *pi = left + 1;
+	while ( pi <= right ) {
+		int  key = *pi;
+		int *pj  = pi - 1;
+
+		while ( pj >= left && *pj > key ) {
+			*( pj + 1 ) = *pj;
+			--pj;
+		}
+
+		*( pj + 1 ) = key;
+		++pi;
+	}
+}
+
+static void q_i_sort( int *arr, int low, int high ) {
+	if ( low >= high ) return;
+	if ( high - low <= 50 ) { insert_for_quick( &arr[low], &arr[high] ); return;}
+	int point = q_partition( arr, low, high );
+	q_sort( arr, low, point - 1 );
+	q_sort( arr, point + 1, high );
+}
+
+void quick_insert_sort( int *arr, int count ) {
+	q_i_sort(arr, 0, count - 1);
+}

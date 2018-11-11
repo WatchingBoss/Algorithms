@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS = -std=c99 -O3
+CFLAGS = -O3
 
 OUT = go
 OBJ = compare.o
