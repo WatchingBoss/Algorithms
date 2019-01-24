@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wpedantic
+CFLAGS = -Wpedantic -O3
 
 OUT = go
 OBJ = merge.o

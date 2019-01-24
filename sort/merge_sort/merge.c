@@ -84,7 +84,7 @@ static void test(int *arr, int size) {
 }
 
 int main() {
-	const int size = 1000000;
+	const int size = 500000;
 	int *     arr  = fillArr(size);
 	test(arr, size);
 
